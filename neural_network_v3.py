@@ -1,7 +1,9 @@
-'''
+"""
 https://github.com/Kulbear/deep-learning-coursera/blob/master/Neural%20Networks%20and%20Deep%20Learning/Planar%20data%20classification%20with%20one%20hidden%20layer.ipynb
 https://github.com/Kulbear/deep-learning-coursera/blob/master/Neural%20Networks%20and%20Deep%20Learning/Deep%20Neural%20Network%20-%20Application.ipynb
-'''
+
+主要遇到的问题是不会矩阵求导。
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt
