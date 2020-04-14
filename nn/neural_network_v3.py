@@ -152,7 +152,7 @@ def model(X, Y, layer_dims, learning_rate=0.0075, iteration_num=2500):
     return parameters
 
 
-from data.catvnoncat_util import load_data
+from nn.data_util import load_data
 
 train_set_x_orig, train_set_y_orig, test_set_x_orig, test_set_y_orig, classes = load_data()
 

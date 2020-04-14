@@ -1,5 +1,5 @@
 import tensorflow.keras as keras
-from data.catvnoncat_util import load_data
+from nn.data_util import load_data
 from tensorflow.keras.layers import Input, Dense
 from tensorflow.keras.utils import normalize
 
