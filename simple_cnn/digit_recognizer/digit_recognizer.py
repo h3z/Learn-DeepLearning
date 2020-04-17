@@ -1,26 +1,11 @@
-import tensorflow.keras as keras
+from tensorflow import keras
 import pandas as pd
-from tensorflow.keras.layers import Dense, Conv2D, AveragePooling2D, Activation, Flatten, Dropout, MaxPooling2D, \
+from keras_preprocessing.image import ImageDataGenerator
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, \
     BatchNormalization
 from tensorflow.keras.utils import to_categorical
-import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.callbacks import LearningRateScheduler, EarlyStopping
-import math
-
-# def get_callback():
-#     def decay(epoch):
-#         if epoch < 10:
-#             return 0.01
-#         elif epoch < 50:
-#             return 0.001
-#         else:
-#             return 0.01 / epoch
-#
-#     lr_scheduler = LearningRateScheduler(decay)
-#     earlyStopping = EarlyStopping(monitor='val_loss', patience=30, verbose=1, restore_best_weights=True)
-#     return [lr_scheduler, earlyStopping]
-
+from tensorflow.keras.callbacks import LearningRateScheduler
 
 df_train = pd.read_csv("train.csv")
 df_test = pd.read_csv("test.csv")
@@ -41,7 +26,7 @@ model.add(Conv2D(128, 3, activation='relu'))
 model.add(BatchNormalization())
 model.add(MaxPooling2D())
 model.add(Dropout(0.2))
-model.add(Conv2D(256, 5, activation='relu'))
+model.add(Conv2D(128, 5, activation='relu'))
 model.add(BatchNormalization())
 model.add(Flatten())
 model.add(Dense(84, activation='relu'))
@@ -53,10 +38,19 @@ model.compile(loss='categorical_crossentropy',
               optimizer=optimizer,
               metrics=['accuracy'])
 
-history = model.fit(X_train, Y,
-                    batch_size=3780,
-                    epochs=300,
-                    validation_split=0.1)
+imgGenerator = ImageDataGenerator(rotation_range=10, zoom_range=0.1, width_shift_range=0.1, height_shift_range=0.1)
+X_train, X_valid, Y_train, Y_valid = train_test_split(X_train, Y)
 
-model.save('simple_cnn_2.h5')
+batch_size = 64
+epochs = 50
+annealer = LearningRateScheduler(lambda x: 1e-3 * 0.95 ** x)
+history = model.fit_generator(imgGenerator.flow(X_train, Y_train, batch_size=batch_size),
+                              epochs=epochs,
+                              # 生成的图片是无限的，所以指定每epoch训练几次就可以。每次用多少数据的batch_size在generator里
+                              # 这个step对应源码training_v2里117那行while step < target_steps:
+                              steps_per_epoch=X_train.shape[0] // batch_size,
+                              validation_data=(X_valid, Y_valid),  # 没有提供比例参数项，还是因为生成的数据可能是无限的
+                              callbacks=[annealer])
+
+model.save('simple_cnn_data_augmentation.h5')
 print('model save')
